@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import torch
 import numpy as np
 
@@ -21,7 +23,7 @@ def ioa_with_temporal_proposals(box_min, box_max, proposals_min, proposals_max):
     box_length = box_max - box_min
     ioas = np.divide(inter_length, box_length)
     return ioas
-    
+
 
 def iou_with_temporal_proposals(box_min, box_max, proposals_min, proposals_max):
     """ 
