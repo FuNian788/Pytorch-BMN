@@ -47,6 +47,3 @@ def iou_with_temporal_proposals(box_min, box_max, proposals_min, proposals_max):
     ious = np.divide(inter_length, union_length)
     return ious
 
-a = np.array([4,5,1])
-b = np.array([12,13,11])
-print(ioa_with_temporal_proposals(2,10,a,b))

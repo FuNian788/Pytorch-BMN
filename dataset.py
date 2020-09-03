@@ -18,11 +18,11 @@ class MyDataset(Dataset):
     def __init__(self, opt, mode='train'):
 
         self.mode = mode
-        self.temporal_scale = opt["temporal_scale"] # 100
+        self.temporal_scale = opt["temporal_scale"]     # 100
         self.temporal_gap = 1. / self.temporal_scale
-        self.feature_path = opt["feature_path"]     # /data/activitynet_feature_cuhk/
-        self.video_info_path = opt["video_info"]    # /data/activitynet_annotations/video_info_new.csv
-        self.video_anno_path = opt["video_anno"]    # /data/activitynet_annotations/anet_anno_action.json
+        self.feature_path = opt["feature_path"]         # /data/activitynet_feature_cuhk/
+        self.video_info_path = opt["video_info_path"]   # /data/activitynet_annotations/video_info_new.csv
+        self.video_anno_path = opt["video_anno_path"]   # /data/activitynet_annotations/anet_anno_action.json
 
         self.get_all_data()
 

@@ -84,7 +84,7 @@ def tem_loss_func(pred_start, pred_end, gt_start, gt_end):
 def pem_reg_loss_func(pred_reg_score, gt_iou_map, bm_mask, high_threshold=0.7, low_threshold=0.3):
 
     """
-    Use MSE + L2 loss to make each proposal's regression score approxiamte to proposal's IoU between GT.
+    Use L2 loss to make each proposal's regression score approxiamte to proposal's IoU between GT.
 
     Arguements:
         pred_reg_score([T*T]): regression part of 'BM_confidence_map'.
@@ -96,7 +96,57 @@ def pem_reg_loss_func(pred_reg_score, gt_iou_map, bm_mask, high_threshold=0.7, l
 
     gt_iou_map = gt_iou_map * bm_mask
 
-    high_mask = (gt_iou_map > high_threshold).float()
-    medium_mask = ((gt_iou_map <= high_threshold) & (gt_iou_map > low_threshold)).float()
-    low_mask = ((gt_iou_map <= low_threshold) & (gt_iou_map >= 0.)).float()
-    # ???
+    mask_high = (gt_iou_map > high_threshold).float()
+    mask_medium = ((gt_iou_map <= high_threshold) & (gt_iou_map > low_threshold)).float()
+    mask_low = ((gt_iou_map <= low_threshold) & (gt_iou_map > 0.)).float()
+
+    num_high = torch.sum(mask_high)
+    num_medium = torch.sum(mask_medium)
+    num_low = torch.sum(mask_low)
+
+    ratio_1 = num_high / num_medium
+    # eg: gt_iou_map.shape: torch.Size([2,3]), then *gt_iou_map.shape: 2 3
+    mask_medium_rand = torch.Tensor(np.random.rand(*gt_iou_map.shape)).cuda()
+    mask_medium_rand = mask_medium_rand * mask_medium
+    mask_medium_rand = (mask_medium_rand > (1 - ratio_1)).float()
+
+    ratio_2 = num_high / num_low
+    mask_low_rand = torch.Tensor(np.random.rand(*gt_iou_map.shape)).cuda()
+    mask_low_rand = mask_low_rand * mask_low
+    mask_low_rand = (mask_low_rand > (1 - ratio_2)).float()
+
+    weights = mask_high + mask_medium_rand + mask_low_rand
+
+    loss = torch.nn.MSELoss(pred_reg_score * weights, gt_iou_map * weights)
+    loss = 0.5 * torch.sum(loss * torch.ones(*weights.shape).cuda()) / torch.sum(weights)
+
+    return loss
+
+
+def pem_cls_loss_func(pred_cls_score, gt_iou_map, bm_mask, threshold=0.9):
+
+    """
+    Adopt weighted binary logistic regression loss function for predicted binary classification confidence map and GT iou map.
+
+    Arguements:
+        pred_cls_score([T*T]): binary classification part of 'BM_confidence_map'.
+        gt_iou_map([T*T]): (G_c): iou between certain period and all GT proposals. 
+        threshold(float[1]): threshold of gt_iou_map.
+    """
+
+    mask_positive = (gt_iou_map > threshold).float()
+    mask_negative = (gt_iou_map <= threshold).float() * bm_mask
+
+    num_positive = torch.sum(mask_positive)
+    num_negative = torch.sum(mask_negative)
+    num_entries = num_positive + num_negative
+
+    # For positive one(above threshold), loss = num_entries / num_positive * log(p_i)
+    # For negative one(below threshold), loss = num_entries / num_negative * log(1 - p_i)
+    epsilon = 1e-6
+    ratio = num_entries / num_positive
+    
+    loss_positive = 0.5 * ratio * torch.log(pred_cls_score + epsilon) * mask_positive
+    loss_negative = 0.5 * ratio / (ratio - 1) * torch.log(1.0 - pred_score + epsilon) * mask_negative
+    loss = -1.0 * torch.sum(loss_positive + loss_negative) / num_entries
+    return loss
