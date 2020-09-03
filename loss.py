@@ -84,7 +84,7 @@ def tem_loss_func(pred_start, pred_end, gt_start, gt_end):
 def pem_reg_loss_func(pred_reg_score, gt_iou_map, bm_mask, high_threshold=0.7, low_threshold=0.3):
 
     """
-    Use L2 loss to make each proposal's regression score approxiamte to proposal's IoU between GT.
+    Use MSE loss + L2 to make each proposal's regression score approxiamte to proposal's IoU between GT.
 
     Arguements:
         pred_reg_score([T*T]): regression part of 'BM_confidence_map'.

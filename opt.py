@@ -10,9 +10,9 @@ class MyConfig(ConfigBase):
         self.mode = 'train'
 
         # path.
-        self.video_info_path = 'data/activitynet_annotations/video_info_new.csv'
-        self.video_anno_path = 'data/activitynet_annotations/anet_anno_action.json'
-        self.feature_path = 'data/activitynet_feature_cuhk/'
+        self.video_info_path = './data/activitynet_annotations/video_info_new.csv'
+        self.video_anno_path = './data/activitynet_annotations/anet_anno_action.json'
+        self.feature_path = './data/activitynet_feature_cuhk/'
 
         self.save_path = ''
         self.checkpoint_path = './checkpoint'
