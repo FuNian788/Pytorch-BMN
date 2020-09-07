@@ -2,10 +2,13 @@ from utils.opt_utils import ConfigBase
 
 class MyConfig(ConfigBase):
 
-    def __init__(self):
+    def __init__(self, save_txt_flag=True, save_json_flag=False):
 
         super(MyConfig, self).__init__()
         
+        self.save_txt_flag = save_txt_flag
+        self.save_json_flag = save_json_flag
+
         # mode.
         self.mode = 'train'
 

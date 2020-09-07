@@ -36,10 +36,10 @@ class MyDataset(Dataset):
         videos_info = pd.read_csv(self.video_info_path) 
         videos_anno = load_json(self.video_anno_path)
         
-        for i in range(len(videos_info)):
+        for i in range(len(videos_info)): 
             video_name = videos_info.video.values[i]
             video_anno = videos_anno[video_name]
-            if videos_info.subset.values[i] == self.mode:
+            if self.mode in videos_info.subset.values[i]:
                 self.video_dict[video_name] = video_anno
         self.video_list = list(self.video_dict.keys())
         print("{} subset has {} videos.".format(self.mode, len(self.video_list)))

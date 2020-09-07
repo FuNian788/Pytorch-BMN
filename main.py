@@ -1,3 +1,5 @@
+import torch
+
 from opt import MyConfig
 from dataset import MyDataset
 
