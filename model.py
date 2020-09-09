@@ -72,7 +72,6 @@ class BMN_model(nn.Module):
 
     
     def forward(self, inputs):
-
         """
         Schematic diagram is as below:
 
@@ -94,7 +93,6 @@ class BMN_model(nn.Module):
                                                                     |
                                                             BM confidence map(Mc):[batch_size][C][D][T], [3][2][100][100]
         """
-
         base_feature = self.x_1d_b(inputs)
         
         # Temporal Evaluation Module.
@@ -111,7 +109,6 @@ class BMN_model(nn.Module):
 
     
     def _get_sample_mask(self):
-
         """
         Generate all the possible proposals' sampling weight masks for Boundary-Matching layer.
             Can be done apart from feature extraction, once you get 'tscale' and 'sample times(N)', you can make masks.
@@ -119,7 +116,6 @@ class BMN_model(nn.Module):
         Return Arguements:
             sample_mask: (np.ndarray[T][N'], [100][320000]): all sample masks.
         """
-
         mask = []
         for end_index in range(self.tscale):
             mask_ = []
@@ -148,7 +144,6 @@ class BMN_model(nn.Module):
     
     
     def _get_sample_mask_per_proposal(self, start_proposal, end_proposal, tscale, num_sample, num_sample_perbin):
-
         """
         Generate a sampling weight mask of certain proposal.
 
@@ -162,8 +157,7 @@ class BMN_model(nn.Module):
 
         Return Arguements:
             mask: (Tensor[T][N]): sample mask for one proposal.
-        """
-        
+        """       
         length_proposal = end_proposal - start_proposal
         
         length_sample_perbin = length_proposal / (num_sample * num_sample_perbin - 1.0)
@@ -187,7 +181,6 @@ class BMN_model(nn.Module):
 
 
     def _boundary_matching_layer(self, bm_feature_map):
-
         """
         For each proposal, through BM layer, conduct dot product at T demension between 
             sampling mask weight and temporal feature sequence to generate BM feature map, whose core is 'sample'.
@@ -195,7 +188,6 @@ class BMN_model(nn.Module):
         Arguements:
             bm_feature_map: (tensor[batch_size][C][T]): boundary-matching feature map.
         """
-
         feature_size = bm_feature_map.size()    # bm_feature_map.shape: [3][128][100]
         output = torch.matmul(bm_feature_map, self.sample_mask).reshape(feature_size[0], feature_size[1], 
                                                                         self.num_sample, self.tscale, self.tscale)

@@ -17,9 +17,9 @@ class MyConfig(ConfigBase):
         self.video_anno_path = './data/activitynet_annotations/anet_anno_action.json'
         self.feature_path = './data/activitynet_feature_cuhk/'
 
-        self.save_path = ''
-        self.checkpoint_path = './checkpoint'
-        self.log_path = ''
+        self.save_path = './save/'
+        self.checkpoint_path = './checkpoint/'
+        self.log_path = './save/'
         self.result_path = './output/result_proposal.json'
         self.fig_path = './output/evaluation_result.jpg'
 

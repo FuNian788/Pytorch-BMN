@@ -5,6 +5,36 @@ import argparse
 import time
 import json
 
+def get_cur_time_stamp():
+
+    """Get current time. """
+    
+    lt = time.localtime(time.time())
+    
+    if lt.tm_mon <= 9:
+        tm_mon = '0' + str(lt.tm_mon)
+    else:
+        tm_mon = str(lt.tm_mon)
+
+    if lt.tm_hour <= 9:
+        tm_hour = '0' + str(lt.tm_hour)
+    else:
+        tm_hour = str(lt.tm_hour)
+
+    if lt.tm_mday <= 9:
+        tm_mday = '0' + str(lt.tm_mday)
+    else:
+        tm_mday = str(lt.tm_mday)
+
+    if lt.tm_min <= 9:
+        tm_min = '0' + str(lt.tm_min)
+    else:
+        tm_min = str(lt.tm_min)
+
+    time_stamp = "{}{}{}-{}{}".format(lt.tm_year, tm_mon, tm_mday, tm_hour, tm_min)
+
+    return time_stamp
+
 
 class ConfigBase(object):
 
@@ -85,7 +115,7 @@ class ConfigBase(object):
 
         """Get the save path. """
 
-        cur_time_stamp = self.get_cur_time_stamp()
+        cur_time_stamp = get_cur_time_stamp()
         real_save_dir = os.path.join(self.save_dir, cur_time_stamp + self.suffix)
         if not os.path.exists(real_save_dir):
             os.makedirs(real_save_dir)
@@ -96,37 +126,6 @@ class ConfigBase(object):
     def real_save_dir(self):
 
         return self._prepare_save_dir()
-
-
-    def get_cur_time_stamp(self):
-
-        """Get current time. """
-        
-        lt = time.localtime(time.time())
-        
-        if lt.tm_mon <= 9:
-            tm_mon = '0' + str(lt.tm_mon)
-        else:
-            tm_mon = str(lt.tm_mon)
-
-        if lt.tm_hour <= 9:
-            tm_hour = '0' + str(lt.tm_hour)
-        else:
-            tm_hour = str(lt.tm_hour)
-
-        if lt.tm_mday <= 9:
-            tm_mday = '0' + str(lt.tm_mday)
-        else:
-            tm_mday = str(lt.tm_mday)
-
-        if lt.tm_min <= 9:
-            tm_min = '0' + str(lt.tm_min)
-        else:
-            tm_min = str(lt.tm_min)
-
-        time_stamp = "{}{}{}-{}{}".format(lt.tm_year, tm_mon, tm_mday, tm_hour, tm_min)
-
-        return time_stamp
 
 
     def load_from_txt(self, txt_path):
