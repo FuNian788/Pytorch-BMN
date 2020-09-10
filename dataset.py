@@ -77,7 +77,7 @@ class MyDataset(Dataset):
 
         # NOTE: tensor or np?
         # Generate 'iou_map' which presents iou between certain period and all GT proposals.
-        gt_iou_map = np.zeros(self.temporal_scale, self.temporal_scale)
+        gt_iou_map = np.zeros((self.temporal_scale, self.temporal_scale))
         for i in range(self.temporal_scale):
             for j in range(i, self.temporal_scale):
                 gt_iou_map[i][j] = np.max(

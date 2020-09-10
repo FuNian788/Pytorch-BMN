@@ -64,7 +64,7 @@ def tem_loss_func(pred_start, pred_end, gt_start, gt_end):
 
         threshold_mask = (gt_label > threshold).float()
         num_entries = len(threshold_mask)
-        num_positive = torch.sum(num_entries)
+        num_positive = torch.sum(threshold_mask)
         ratio = num_entries / num_positive
 
         # For positive one(above threshold), loss = num_entries / num_positive * log(p_i)
@@ -117,7 +117,8 @@ def pem_reg_loss_func(pred_reg_score, gt_iou_map, bm_mask, high_threshold=0.7, l
 
     weights = mask_high + mask_medium_rand + mask_low_rand
 
-    loss = torch.nn.MSELoss(pred_reg_score * weights, gt_iou_map * weights)
+    MSE_loss_function = torch.nn.MSELoss()
+    loss = MSE_loss_function(pred_reg_score * weights, gt_iou_map * weights)
     loss = 0.5 * torch.sum(loss * torch.ones(*weights.shape).cuda()) / torch.sum(weights)
 
     return loss
@@ -147,6 +148,6 @@ def pem_cls_loss_func(pred_cls_score, gt_iou_map, bm_mask, threshold=0.9):
     ratio = num_entries / num_positive
     
     loss_positive = 0.5 * ratio * torch.log(pred_cls_score + epsilon) * mask_positive
-    loss_negative = 0.5 * ratio / (ratio - 1) * torch.log(1.0 - pred_score + epsilon) * mask_negative
+    loss_negative = 0.5 * ratio / (ratio - 1) * torch.log(1.0 - pred_cls_score + epsilon) * mask_negative
     loss = -1.0 * torch.sum(loss_positive + loss_negative) / num_entries
     return loss

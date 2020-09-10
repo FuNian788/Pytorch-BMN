@@ -43,3 +43,5 @@ class MyConfig(ConfigBase):
         self.soft_nms_high_thres = 0.9
         self.soft_nms_low_thres = 0.5
         self.soft_nms_alpha = 0.4
+
+        self.num_workers = 8
