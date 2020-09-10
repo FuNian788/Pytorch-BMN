@@ -62,8 +62,7 @@ if __name__ == "__main__":
         os.makedirs(opt.save_path)
 
     model = BMN_model(opt)
-    model = nn.DataParallel(model)
-    model.cuda()
+    model = nn.DataParallel(model).cuda()
 
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=opt.learning_rate, weight_decay=opt.weight_decay)
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=opt.step_size, gamma=opt.step_gamma)
@@ -137,7 +136,7 @@ if __name__ == "__main__":
             checkpoint = {'state_dict': model.state_dict(),
                         'optimizer': optimizer.state_dict(),
                         'epoch': epoch}
-            torch.save(checkpoint, opt.save_path + start_time + '/' + str(epoch) + '_param.pth')
+            torch.save(checkpoint, opt.save_path + start_time + '/' + str(epoch) + '_param.pth.tar')
             valid_best_loss = epoch_valid_loss
             
             # Save whole model.
