@@ -18,6 +18,8 @@ from opt import MyConfig
 from utils.inference_utils import proposals_select_pervideo
 from utils.nms_utils import soft_nms_proposal
 from utils.opt_utils import get_cur_time_stamp
+from utils.eval_utils import ANETproposal
+from utils.plot_utils import plot_result
 
 # GPU setting.
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"      # range GPU in order
@@ -55,7 +57,7 @@ def my_worker_init_fn():
     # torch.backends.cudnn.deterministic = True
 
 
-def get_type_data(opt, mode='test'):
+def get_type_data(opt, mode='valid'):
 
     """Get data of cetrain type. Save information in 'video_dict'. """
     # total video: 19228
@@ -130,7 +132,7 @@ if __name__ == "__main__":
             df = pd.DataFrame(df, columns=columns)
             df.to_csv("./output/BMN_results/" + video_name + ".csv", index=False)
 
-    """Select all videoes' proposals in multi-processing.  """
+    """Get all videoes' selected proposals in multi-processing.  """
     video_dict = get_type_data(opt, type='test')
     video_list = list(video_dict.keys())
     num_video = len(video_list)
@@ -156,5 +158,26 @@ if __name__ == "__main__":
         p.join()
 
     results = dict(results)
-    with open(opt.result_path, 'w') as j:
-        json.dump(results, j)
+    results_ = {"version": "1.3", "results":results, "external_data": {}}
+    with open(opt.result_json_path, 'w') as j:
+        json.dump(results_, j)
+
+    """Run evaluation and save figure. """
+    anet_proposal = ANETproposal(ground_truth_filename=opt.evaluation_json_path, 
+                                 proposal_filename=opt.result_json_path, 
+                                 tiou_thresholds=np.linspace(0.5, 0.95, 10),
+                                 max_avg_nr_proposals=100,
+                                 subset='validation',
+                                 verbose=True,
+                                 check_status=False)
+    anet_proposal.evaluate()
+
+    recall = anet_proposal.recall
+    average_recall = anet_proposal.avg_recall
+    num_proposals = anet_proposal.proposals_per_video
+
+    plot_result(opt, num_proposals, recall, average_recall)
+    print( "AR@1 is {}".format(np.mean(recall[:,0])))
+    print( "AR@5 is {}".format(np.mean(recall[:,4])))
+    print( "AR@10 is {}".format(np.mean(recall[:,9])))
+    print( "AR@100 is {}".format(np.mean(recall[:,-1])))

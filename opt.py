@@ -16,12 +16,13 @@ class MyConfig(ConfigBase):
         self.video_info_path = './data/activitynet_annotations/video_info_new.csv'
         self.video_anno_path = './data/activitynet_annotations/anet_anno_action.json'
         self.feature_path = './data/activitynet_feature_cuhk/'
+        self.evaluation_json_path = '/data/eval/activity_net_1_3_new.json'
+        self.result_json_path = './output/result_proposal.json'
 
         self.save_path = './save/'
-        self.checkpoint_path = './checkpoint/'
         self.log_path = './save/'
-        self.result_path = './output/result_proposal.json'
-        self.fig_path = './output/evaluation_result.jpg'
+        self.checkpoint_path = './checkpoint/'
+        self.save_fig_path = './output/evaluation_result.jpg'
 
         # Hyper-parameters.
         self.epochs = 9
