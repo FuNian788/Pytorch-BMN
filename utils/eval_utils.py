@@ -1,6 +1,7 @@
 # coding: utf:8
 
 # code from 'https://github.com/JJBOY/BMN-Boundary-Matching-Network/blob/master/Evaluation/eval_proposal.py'.
+# Add some comments for easier understanding.
 
 import json
 import numpy as np
@@ -18,7 +19,7 @@ def interpolated_prec_rec(prec, rec):
     return ap
 
 def segment_iou(target_segment, candidate_segments):
-    # NOTE: return tIoU between a proposed proposal and all GT proposals.
+    # Return tIoU between a proposed proposal and all GT proposals.
     """Compute the temporal intersection over union between a
     target segment and all the test segments.
 
@@ -37,7 +38,7 @@ def segment_iou(target_segment, candidate_segments):
     tt1 = np.maximum(target_segment[0], candidate_segments[:, 0])
     tt2 = np.minimum(target_segment[1], candidate_segments[:, 1])
     # Intersection including Non-negative overlap score.
-    #   numpy.clip(a, a_min, a_max, out=None, **kwargs): limit values in array from min to max. fast.
+    #   numpy.clip(a, a_min, a_max, out=None, **kwargs): limit values in array from min to max. Run fast.
     segments_intersection = (tt2 - tt1).clip(0)
     # Segment union.
     segments_union = (candidate_segments[:, 1] - candidate_segments[:, 0]) \
