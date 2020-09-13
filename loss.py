@@ -19,7 +19,7 @@ def get_mask(tscale):
 
 def bmn_loss(pred_bm, pred_start, pred_end, gt_iou_map, gt_start, gt_end, bm_mask):
     """ 
-    Loss of BMN, which consists of three parts: TEM, PEM-regression and PRM-classification.
+    Loss of BMN, which consists of three parts: TEM, PEM-regression and PEM-classification.
     
     Arguements:
         1. Model output:

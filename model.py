@@ -12,6 +12,16 @@ from opt import MyConfig
 
 class BMN_model(nn.Module):
 
+    """
+    Model for BMN.
+
+    Return Arguements:
+        bm_confidence_map: (tensor[batch_size][C=2][D][T]): BM confidence map which consists of 'regression' and 'binary classiication'.
+        start: (tensor[batch_size][T]): start score sequence.
+        end: (tensor[batch_size][T]): end score sequence.
+
+    """
+
     def __init__(self, opt):
 
         super(BMN_model, self).__init__()
@@ -187,6 +197,9 @@ class BMN_model(nn.Module):
 
         Arguements:
             bm_feature_map: (tensor[batch_size][C][T]): boundary-matching feature map.
+
+        Return Arguements:
+            output: (tensor[batch_size][C][N][D][T]): sampled feature.
         """
         feature_size = bm_feature_map.size()    # bm_feature_map.shape: [3][128][100]
         output = torch.matmul(bm_feature_map, self.sample_mask).reshape(feature_size[0], feature_size[1], 

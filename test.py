@@ -22,8 +22,8 @@ from utils.eval_utils import ANETproposal
 from utils.plot_utils import plot_result
 
 # GPU setting.
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"      # range GPU in order
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"            # use the NO.2 GPU first and name it '/gpu:0'
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # range GPU in order
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"            
 
 # Basic test.
 print("Pytorch's version is {}.".format(torch.__version__))
@@ -133,7 +133,7 @@ if __name__ == "__main__":
             df.to_csv("./output/BMN_results/" + video_name + ".csv", index=False)
 
     """Get all videoes' selected proposals in multi-processing.  """
-    video_dict = get_type_data(opt, type='test')
+    video_dict = get_type_data(opt, type='valid')
     video_list = list(video_dict.keys())
     num_video = len(video_list)
     num_video_per_thread = num_video // opt.post_process_thread

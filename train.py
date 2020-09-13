@@ -16,8 +16,8 @@ from opt import MyConfig
 from utils.opt_utils import get_cur_time_stamp
 
 # GPU setting.
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"      # range GPU in order
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"            # use the NO.2 GPU first and name it '/gpu:0'
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # range GPU in order
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"            
 
 # Basic test.
 print("Pytorch's version is {}.".format(torch.__version__))
@@ -83,9 +83,9 @@ if __name__ == "__main__":
         model.train()
         torch.cuda.empty_cache()
         epoch_train_loss = 0
-        for train_iter, train_data in enumerate(train_dataloader, start=1):
+        for train_iter, train_data in tqdm(enumerate(train_dataloader, start=1)):
             
-            optimizer.zero_grad() # same as 'model.zero_grad()' when 'optimizer = optim.Optimizer(model.parameters())'.
+            optimizer.zero_grad()
             
             video_feature, gt_iou_map, start_score, end_score = train_data
             video_feature = video_feature.cuda()
@@ -134,8 +134,8 @@ if __name__ == "__main__":
         if epoch_valid_loss < valid_best_loss:
             # Save parameters.
             checkpoint = {'state_dict': model.state_dict(),
-                        'optimizer': optimizer.state_dict(),
-                        'epoch': epoch}
+                          'optimizer': optimizer.state_dict(),
+                          'epoch': epoch}
             torch.save(checkpoint, opt.save_path + start_time + '/' + str(epoch) + '_param.pth.tar')
             valid_best_loss = epoch_valid_loss
             
