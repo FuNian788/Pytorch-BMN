@@ -29,7 +29,7 @@ def plot_result(opt, num_proposals, recall, average_recall, tiou_threshold=np.li
 
     # Plot a black line which presents AR@AN(Average Recall vs Average Number Of Proposals).
     ax.plot(num_proposals, average_recall, color=colors[0],
-            lebel="tIoU = 0.5:0.05:0.95, area = " + str(int(np.trapz(average_recall, num_proposals) * 100) / 100.),
+            label="tIoU = 0.5:0.05:0.95, area = " + str(int(np.trapz(average_recall, num_proposals) * 100) / 100.),
             linewidth=4, linestyle='-', marker=None)
 
     # Plot 5 lines which present recall in certain tIoU(0.5/0.6/0.7/0.8/0.9).

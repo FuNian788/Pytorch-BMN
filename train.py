@@ -17,7 +17,7 @@ from utils.opt_utils import get_cur_time_stamp
 
 # GPU setting.
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # range GPU in order
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"            
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"            
 
 # Basic test.
 print("Pytorch's version is {}.".format(torch.__version__))
@@ -67,6 +67,14 @@ if __name__ == "__main__":
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=opt.learning_rate, weight_decay=opt.weight_decay)
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=opt.step_size, gamma=opt.step_gamma)
 
+    if opt.train_from_checkpoint: 
+        checkpoint = torch.load(opt.checkpoint_path + '9_param.pth.tar')
+        model.load_state_dict(checkpoint['state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer'])
+        start_epoch = checkpoint['epoch']
+    else:
+        start_epoch = 1
+
     train_dataset = MyDataset(opt)
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=True, 
                                                    num_workers=opt.num_workers, pin_memory=True)
@@ -77,12 +85,13 @@ if __name__ == "__main__":
 
     valid_best_loss = float('inf')
 
-    for epoch in tqdm(range(1, opt.epochs + 1)):
+    for epoch in tqdm(range(start_epoch, opt.epochs + 1)):
 
         # Train.
         model.train()
         torch.cuda.empty_cache()
         epoch_train_loss = 0
+
         for train_iter, train_data in tqdm(enumerate(train_dataloader, start=1)):
             
             optimizer.zero_grad()

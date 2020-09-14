@@ -11,21 +11,22 @@ class MyConfig(ConfigBase):
 
         # mode.
         self.mode = 'train'
+        self.train_from_checkpoint = False
 
         # path.
         self.video_info_path = './data/activitynet_annotations/video_info_new.csv'
         self.video_anno_path = './data/activitynet_annotations/anet_anno_action.json'
         self.feature_path = './data/activitynet_feature_cuhk/'
-        self.evaluation_json_path = '/data/eval/activity_net_1_3_new.json'
+        self.evaluation_json_path = './data/eval/activity_net_1_3_new.json'
         self.result_json_path = './output/result_proposal.json'
 
         self.save_path = './save/'
         self.log_path = './save/'
-        self.checkpoint_path = './checkpoint/20200910-1022/'
+        self.checkpoint_path = './save/20200914-0850/'
         self.save_fig_path = './output/evaluation_result.jpg'
 
         # Hyper-parameters.
-        self.epochs = 9
+        self.epochs = 30
         self.batch_size = 16
         self.learning_rate = 1e-3
         self.weight_decay = 1e-4

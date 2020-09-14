@@ -86,6 +86,9 @@ if __name__ == "__main__":
 
     start_time = str(get_cur_time_stamp())
 
+    if not os.path.exists("output/BMN_results"):
+        os.makedirs("output/BMN_results")
+
     """Load model and data, save scores of all possible proposals without selecting. """
     model = BMN_model(opt)
     model = nn.DataParallel(model).cuda()
@@ -94,12 +97,12 @@ if __name__ == "__main__":
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()
 
-    test_dataset = MyDataset(opt)
+    test_dataset = MyDataset(opt, mode='valid')
     test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=True, 
-                                                   num_workers=opt.num_workers, pin_memory=True)
-
+                                                  num_workers=opt.num_workers, pin_memory=True)
+    
     with torch.no_grad():
-        for index, video_feature in test_dataloader:
+        for _, (index, video_feature) in enumerate(test_dataloader):
             video_name = test_dataloader.dataset.video_list[index]
             video_feature = video_feature.cuda()
             bm_confidence_map, start, end = model(video_feature)
@@ -129,11 +132,12 @@ if __name__ == "__main__":
             proposals = np.stack(proposals)
 
             columns = ["xmin", "xmax", "xmin_score", "xmax_score", "cls_score", "reg_score", "score"]
-            df = pd.DataFrame(df, columns=columns)
+            df = pd.DataFrame(proposals, columns=columns)
             df.to_csv("./output/BMN_results/" + video_name + ".csv", index=False)
-
+    
     """Get all videoes' selected proposals in multi-processing.  """
-    video_dict = get_type_data(opt, type='valid')
+    
+    video_dict = get_type_data(opt, mode='valid')
     video_list = list(video_dict.keys())
     num_video = len(video_list)
     num_video_per_thread = num_video // opt.post_process_thread
@@ -144,13 +148,13 @@ if __name__ == "__main__":
 
     for index_thread in range(opt.post_process_thread - 1):
         temp_video_list = video_list[index_thread * num_video_per_thread: (index_thread + 1) * num_video_per_thread]
-        p = mp.Process(target=proposals_select_pervideo, args=(opt, temp_video_list, video_dict))
+        p = mp.Process(target=proposals_select_pervideo, args=(opt, temp_video_list, video_dict, results))
         p.start()
         processes.append(p)
 
     # final batch.
     temp_video_list = video_list[(opt.post_process_thread - 1) * num_video_per_thread:]
-    p = mp.Process(target=proposals_select_pervideo, args=(opt, temp_video_list, video_dict))
+    p = mp.Process(target=proposals_select_pervideo, args=(opt, temp_video_list, video_dict, results))
     p.start()
     processes.append(p)
     # Make sure that all process is finished.
@@ -161,7 +165,7 @@ if __name__ == "__main__":
     results_ = {"version": "1.3", "results":results, "external_data": {}}
     with open(opt.result_json_path, 'w') as j:
         json.dump(results_, j)
-
+    
     """Run evaluation and save figure. """
     anet_proposal = ANETproposal(ground_truth_filename=opt.evaluation_json_path, 
                                  proposal_filename=opt.result_json_path, 
