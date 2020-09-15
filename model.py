@@ -62,7 +62,7 @@ class BMN_model(nn.Module):
 
         # Proposal Evaluation Module: BM_layer(x_1d_p) + conv3d + conv2d
         self.x_1d_p = nn.Sequential(
-            nn.Conv1d(self.hidden_dim_1d, self.hidden_dim_2d, kernel_size=3, padding=1),    
+            nn.Conv1d(self.hidden_dim_1d, self.hidden_dim_2d, kernel_size=3, padding=1),   
             nn.ReLU(inplace=True)
         )
         self.x_3d_p = nn.Sequential(

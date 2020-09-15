@@ -12,11 +12,11 @@ def proposals_select_pervideo(opt, video_list, video_dict, results):
         opt: (config): parameters.
         video_list: (list): video names.
         video_dict: (dict): video information.
+        results: (multiprocessing.Manager().dict()): a dict which contains selected periods of each video.
 
     Return Arguements:
         video_name[2:]: (str): name of video, eg: 'c8enCfzqw'.
         proposals: (list): selected proposals of certain video.
-        results: (multiprocessing.Manager().dict()): a dict which contains selected periods of each video.
     """
     for video_name in video_list:
         df = pd.read_csv("./output/BMN_results/" + video_name + ".csv")
@@ -34,7 +34,7 @@ def proposals_select_pervideo(opt, video_list, video_dict, results):
         for i in range(min(100, len(df))):
             proposal = {}
             proposal["score"] = df.score.values[i]
-            proposal["segment"] = [max(0, df.xmin.values[i]) * real_video_duration, min(1, df.xmax.values[i] * real_video_duration)]
+            proposal["segment"] = [max(0, df.xmin.values[i]) * real_video_duration, min(1, df.xmax.values[i]) * real_video_duration]
             proposals.append(proposal)
 
         results[video_name[2:]] = proposals

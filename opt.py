@@ -22,7 +22,7 @@ class MyConfig(ConfigBase):
 
         self.save_path = './save/'
         self.log_path = './save/'
-        self.checkpoint_path = './save/20200914-0850/'
+        self.checkpoint_path = './save/20200914-1053/'
         self.save_fig_path = './output/evaluation_result.jpg'
 
         # Hyper-parameters.

@@ -68,7 +68,6 @@ def get_type_data(opt, mode='valid'):
     videos_info = pd.read_csv(opt.video_info_path) 
     with open(opt.video_anno_path) as f:
         videos_anno = json.load(f)
-    
     for i in range(len(videos_info)): 
         video_subset = videos_info.subset.values[i]
         if mode in video_subset:
@@ -90,6 +89,8 @@ if __name__ == "__main__":
         os.makedirs("output/BMN_results")
 
     """Load model and data, save scores of all possible proposals without selecting. """
+    
+    print("Load the model.")
     model = BMN_model(opt)
     model = nn.DataParallel(model).cuda()
 
@@ -101,8 +102,9 @@ if __name__ == "__main__":
     test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=True, 
                                                   num_workers=opt.num_workers, pin_memory=True)
     
+    print('Process video data and save.')
     with torch.no_grad():
-        for _, (index, video_feature) in enumerate(test_dataloader):
+        for index_, (index, video_feature) in enumerate(test_dataloader):
             video_name = test_dataloader.dataset.video_list[index]
             video_feature = video_feature.cuda()
             bm_confidence_map, start, end = model(video_feature)
@@ -136,7 +138,8 @@ if __name__ == "__main__":
             df.to_csv("./output/BMN_results/" + video_name + ".csv", index=False)
     
     """Get all videoes' selected proposals in multi-processing.  """
-    
+
+    print("Get all videoes' selected proposals in multi-processing.")
     video_dict = get_type_data(opt, mode='valid')
     video_list = list(video_dict.keys())
     num_video = len(video_list)
@@ -165,8 +168,10 @@ if __name__ == "__main__":
     results_ = {"version": "1.3", "results":results, "external_data": {}}
     with open(opt.result_json_path, 'w') as j:
         json.dump(results_, j)
-    
+    print('Already saved the json, waiting for evaluation.')
+
     """Run evaluation and save figure. """
+
     anet_proposal = ANETproposal(ground_truth_filename=opt.evaluation_json_path, 
                                  proposal_filename=opt.result_json_path, 
                                  tiou_thresholds=np.linspace(0.5, 0.95, 10),
