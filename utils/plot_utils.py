@@ -36,7 +36,7 @@ def plot_result(opt, num_proposals, recall, average_recall, tiou_threshold=np.li
     for i, tiou in enumerate(tiou_threshold[::2]):
         ax.plot(num_proposals, recall[2 * i, :], color=colors[i+1], 
                 label="tIoU = " + str(tiou) + ", area = " + str(int(np.trapz(average_recall, num_proposals) * 100) / 100.),
-                linewidth=4, linestyle='-', marker=None)
+                linewidth=4, linestyle='--', marker=None)
 
     # Save image.
     plt.ylabel('Average Recall', fontsize=fn_size)

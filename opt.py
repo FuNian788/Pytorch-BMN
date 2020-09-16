@@ -26,7 +26,7 @@ class MyConfig(ConfigBase):
         self.save_fig_path = './output/evaluation_result.jpg'
 
         # Hyper-parameters.
-        self.epochs = 30
+        self.epochs = 9
         self.batch_size = 16
         self.learning_rate = 1e-3
         self.weight_decay = 1e-4
