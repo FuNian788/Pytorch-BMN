@@ -29,26 +29,6 @@ print("GPU's type is {}.".format(torch.cuda.get_device_name(0)))
 # torch.backends.cudnn.benchmark = True
 # torch.backends.cudnn.deterministic = True
 
-# Weights initialization.
-def weights_init(model):
-    classname = model.__class__.__name__
-    if classname.find('Conv') != -1:
-        model.weight.data.normal_(0.0, 0.02)
-    elif classname.find('BatchNorm') != -1:
-        model.weight.data.normal_(1.0, 0.02)
-        model.bias.data.fill_(0)
-
-# Random seed.
-def my_worker_init_fn():
-    seed = torch.initial_seed()
-    np_seed = seed // (2 ** 32 - 1)
-    random.seed(seed)                 
-    np.random.seed(np_seed)     
-    # torch.manual_seed(seed)             # CPU.
-    # torch.cuda.manual_seed(seed)        # One GPU.
-    # torch.cuda.manual_seed_all(seed)    # Multiple GPUs.
-    # torch.backends.cudnn.deterministic = True
-
 if __name__ == "__main__":
 
     opt = MyConfig()
