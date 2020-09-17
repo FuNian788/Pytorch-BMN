@@ -27,6 +27,7 @@ After 9 epochs, we can get accuracy as below:
 | AR@5   | 49.7%  |
 | AR@10  | 57.0%  |
 | AR@100 | 75.4%  |
+| AUC    | 67.4%  |  
 
 ### 4. Tutorial
 
@@ -68,7 +69,7 @@ python train.py -- epochs 30
  
 #### 4.3 test
 
-Same as above, using `test.py` foe testing.
+Same as above, using `test.py` for testing.
 
 ```Shell
 python test.py
@@ -83,7 +84,6 @@ I referred to many fantastic repos during the implementation:
 
 
 ### 6. TODO
-[ ] plot figure.  
 [ ] mAP calculating.  
 
 
