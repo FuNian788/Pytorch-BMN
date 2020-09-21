@@ -1,6 +1,6 @@
 # coding: utf:8
 
-# code from 'https://github.com/JJBOY/BMN-Boundary-Matching-Network/blob/master/Evaluation/eval_proposal.py'.
+# code from 'https://github.com/activitynet/ActivityNet/blob/master/Evaluation/eval_proposal.py'.
 # Add some comments for easier understanding.
 
 import json
@@ -76,7 +76,6 @@ def wrapper_segment_iou(target_segments, candidate_segments):
 class ANETproposal(object):
 
     GROUND_TRUTH_FIELDS = ['database', 'taxonomy', 'version']
-    # 'taxonomy' means divide data into many categories. 
     PROPOSAL_FIELDS = ['results', 'version', 'external_data']
 
     def __init__(self, ground_truth_filename=None, proposal_filename=None,
