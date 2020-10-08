@@ -9,7 +9,12 @@ import pandas as pd
 
 def interpolated_prec_rec(prec, rec):
     """Interpolated AP - VOCdevkit from VOC 2011.
+
+    Arguements:
+        prec: float[N]: precision.
+        rec: float[N]: recall.
     """
+    # np.hstack: stack arrays in sequence horizontally (column wise).
     mprec = np.hstack([[0], prec, [0]])
     mrec = np.hstack([[0], rec, [1]])
     for i in range(len(mprec) - 1)[::-1]:
@@ -125,7 +130,7 @@ class ANETproposal(object):
         ----------
         ground_truth_filename : str
             Full path to the ground truth json file.
-            NOTE in our code, it is "./Evaluation/data/activity_net_1_3_new.json"
+            NOTE: in our code, it is "./Evaluation/data/activity_net_1_3_new.json"
 
         Outputs
         -------
@@ -255,18 +260,18 @@ def average_recall_vs_avg_nr_proposals(ground_truth, proposals,
     video_lst = ground_truth['video-id'].unique()
 
     if not max_avg_nr_proposals:
+        # number of proposals in each video is variable.
         max_avg_nr_proposals = float(proposals.shape[0])/video_lst.shape[0]
 
     ratio = max_avg_nr_proposals*float(video_lst.shape[0])/proposals.shape[0]
 
-    # Adaptation to query faster
-    #   grouped = data.groupby('category'), then we may use grouped['category1'].sum()...
-    # Put the ground truth: t-start, t-end in groups through 'video-id'.
+    # Use 'pandas.groupby()' for df, which puts ground truth: t-start, t-end in groups through 'video-id'.
     ground_truth_gbvn = ground_truth.groupby('video-id')
     proposals_gbvn = proposals.groupby('video-id')
 
     # For each video, computes tiou scores among the retrieved proposals.
-    # len(score_list) == len(videoid), then each element in score_list has the shape of len(GT_proposal) * n. 
+    # len(score_list) == len(videoid)
+    # Each element in score_list has the shape of 'this_video_GT.shape[0] * this_video_proposals.shape[0]'.
     score_lst = []
     total_nr_proposals = 0
     for videoid in video_lst:
@@ -310,28 +315,19 @@ def average_recall_vs_avg_nr_proposals(ground_truth, proposals,
     # retrieved per video.
 
     # Computes average recall.
-    #   NOTE: assume we have 90 videos(in video_lst), then variables have size as below:
     """
-    video_list: 
-        1D: size: 90
-        len(video_list) == 90, because we have 90 videos.
-    positives: number of GT proposals
-        1D: size: 90
-    score_list: 
-        3D: size: 90 * (GT * proposal)
-        len(score_list) == 90, but the size of score_list's each element is 'len(GT)' * 'len(proposed proposals)'.
-    pcn_list:(percentage)
-        1D: size: 100
-    matches:
-        2D: size: 90 * 100
-    recall: recall[i,j]: recall at ith tiou threshold at the jth average number of average number of proposals per video.
-        NOTE: recall: TP / (TP + FN), the proposed proposals which are above the threshold / GT proposals.
-        2D: size: 10 * 100
-    
+    video_list: [video_num]: video names.
+    pcn_list: [100]: percentage of each video.
+        if each video has max proposals, then 'pcn_list' will be range from 0.01, 0.02 ... to 1.
+        Assume we have 10 videos, 4 of them get 20 proposals and the other 6 videos has 50 proposals(max_avg_nr_proposals).
+        Then total_nr_proposals = 4 * 20 + 6 * 50 = 380, 
+        while pcn_list = range(100)/100 * 50 * 10 / 380, so it ranges from 1/76, 2/76 ... to 100/76.
+    matches: [video_num][100]
+    positives: [video_num]
+    recall: [tiou_num][100]: TP / (TP + FN), the ratio of proposed proposals which are above the threshold / GT proposals.
+        recall[i][j]: recall at ith tiou threshold at the jth average number of average number of proposals per video.
+    score_list: [video_num][num_GT(vary)][num_proposed_proposals(vary)]
     """
-    # if each video has max proposals, then pcn_list will be range from 0.01, 0.02 ... to 1.
-    # Assume that, we have 10 videos, each video has 50 proposals at most, but 4 of them just get 20 proposals.
-    # Then total_nr_proposals = 4 * 20 + 6 * 50 = 380, then pcn_list = range(100)/100 * 50 * 10 / 380, may range from 1/76, 2/76 ... to 100/76.
     pcn_lst = np.arange(1, 101) / 100.0 *(max_avg_nr_proposals*float(video_lst.shape[0])/total_nr_proposals)
     matches = np.empty((video_lst.shape[0], pcn_lst.shape[0]))
     positives = np.empty(video_lst.shape[0])
@@ -350,15 +346,15 @@ def average_recall_vs_avg_nr_proposals(ground_truth, proposals,
             pcn_proposals = np.minimum((score.shape[1] * pcn_lst).astype(np.int), score.shape[1])
 
             for j, nr_proposals in enumerate(pcn_proposals):
-                # j range from 0 to 99.
-                # Compute the number of matches for each percentage of the proposals: all GT and top-nr_proposals proposed proposals.
+                # len(pcn_proposals) == num_proposed_proposals_per_video, in BMN, it is 100.
+                # Compute the number of matches for each percentage of the proposals, 
+                # which is between all GT proposals and 'nr_proposals' top-score proposed proposals.
                 #   (true_positives_tiou[:, :nr_proposals]).sum(axis=1) --> shape: GT_proposal * 1
-                # NOTE: matches[i,j]: for i-th video, when we get top-pcn_list[j] proposals, there are match[i,j] GT have corresponding proposals.
-                # NOTE such number of GT are detected.
+                # NOTE: matches[i,j]: for i-th video, when we get 'pcn_list[j]' top-score proposed proposals, 
+                #                     there are 'match[i,j]' GT proposals gotten retrieved(have corresponding proposals).
                 matches[i, j] = np.count_nonzero((true_positives_tiou[:, :nr_proposals]).sum(axis=1))
 
         # Computes recall given the set of matches per video.
-        #   matches.sum(axis=0): for all videos, when we get top-pcn_list[j] proposals, the detected GT number. j from 0 to 100).
         recall[ridx, :] = matches.sum(axis=0) / positives.sum()
 
     # Recall is averaged.
